@@ -41,21 +41,36 @@ Auction = { page = 1 }
     function Auction:Goto_BuyTab()
         Auction:ClearTabPanel()
         self.buyTab_panel = SetupComponent(self.panel, Panel(Rect(10, 50, 620, 300)), Colors.NONE, Aligns.TOP_LEFT)
-        self.buyTab_panel.SetOpacity(0)
 
         local itemlist_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 620, 240)), Colors.NONE, Aligns.TOP_CENTER, 0.5, 0)
+        local itemPanels = SetupSeparatingPanels(itemlist_panel, 5); -- '아이템 목록 패널' 안에 5개의 '아이템 패널'을 만든다.
 
         local arrowLeft_btn = SetupComponent(self.buyTab_panel, Button("<", Rect(-25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
         local arrowRight_btn = SetupComponent(self.buyTab_panel, Button(">", Rect(25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
 
-        local pageText = SetupComponent(self.buyTab_panel, Text(self.page .. "/" .. "2", Rect(80, -15, 40, 40)), Colors.NONE, Aligns.BOTTOM_CENTER, 0.5, 0.5)
+        local pageText = SetupComponent(self.buyTab_panel, Text(self.page .. "/" .. "2", Rect(80, -15, 40, 40)), nil, Aligns.BOTTOM_CENTER, 0.5, 0.5)
 
-        local itemPanels = SetupSeparatingPanels(itemlist_panel, 5);
     end
 
     function Auction:Goto_SellTab()
         Auction:ClearTabPanel()
-        self.sellTab_panel = SetupComponent(self.panel, Panel(Rect(10, 70, 620, 280)), Colors.BLACK, Aligns.TOP_LEFT)
+        self.sellTab_panel = SetupComponent(self.panel, Panel(Rect(10, 50, 620, 300)), Colors.NONE, Aligns.TOP_LEFT)
+
+        local registered_itemlist_panel = SetupComponent(self.sellTab_panel, Panel(Rect(0, 20, 400, 240)), Colors.NONE, Aligns.TOP_LEFT)
+        local itemPanels = SetupSeparatingPanels(registered_itemlist_panel, 5);
+
+        local registering_panel = SetupComponent(self.sellTab_panel, Panel(Rect(400, 20, 220, 240)), Colors.NONE, Aligns.TOP_LEFT)
+        local item_img = SetupComponent(registering_panel, Image("", Rect(0 , 0, 60, 60)), nil, Aligns.TOP_CENTER, 0.5, 0)
+        local item_selecting_btn = SetupComponent(registering_panel, Button("아이템 선택", Rect(0, 70, 100, 20)), Colors.LIGHT_GRAY, Aligns.TOP_CENTER, 0.5, 0)
+
+        local price_txt = SetupComponent(registering_panel, Text("가격", Rect(-50, 100, 30, 30)), nil, Aligns.TOP_CENTER, 0.5, 0)
+        local price_inputField = SetupComponent(registering_panel, InputField(Rect(20, 100, 100, 30)), nil, Aligns.TOP_CENTER, 0.5, 0)
+
+        local amount_txt = SetupComponent(registering_panel, Text("개수", Rect(-50, 140, 30, 30)), nil, Aligns.TOP_CENTER, 0.5, 0)
+        local amount_inputField = SetupComponent(registering_panel, InputField(Rect(20, 140, 100, 30)), nil, Aligns.TOP_CENTER, 0.5, 0)
+
+        local registering_btn = SetupComponent(registering_panel, Button("등록하기", Rect(0, 190, 80, 40)), Colors.LIGHT_GRAY, Aligns.TOP_CENTER, 0.5, 0)
+        
 
 
     end
@@ -106,7 +121,7 @@ end
 
 -- Consts
 Colors = {
-    NONE = nil,
+    NONE = Color(0, 0, 0, 0),
     BLACK = Color(0, 0, 0, 255),
     GRAY = Color(60, 60, 60, 255),
     LIGHT_GRAY = Color(120, 120, 120, 255),
