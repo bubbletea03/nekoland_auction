@@ -37,6 +37,8 @@ Auction = { page = 1 }
         local arrowRight_btn = SetupComponent(self.buyTab_panel, Button(">", Rect(25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
 
         local pageText = SetupComponent(self.buyTab_panel, Text(self.page .. "/" .. "2", Rect(80, -15, 40, 40)), Colors.NONE, Aligns.BOTTOM_CENTER, 0.5, 0.5)
+
+        local itemPanels = SetupSeparatingPanels(itemlist_panel, 5);
     end
 
     function Auction:Goto_SellTab()
@@ -59,6 +61,19 @@ Auction = { page = 1 }
 
 
 -- Utilities
+function SetupSeparatingPanels(rootPanel, count)
+    -- 한 패널 안에 count개의 새로운 패널들을 생성한다. [새로운 패널들을 테이블로 반환]
+    -- 아이템 목록을 표시할 때 사용한다.
+    local panels_table = {}
+    for i = 1, count do
+        local w, h = rootPanel.width, rootPanel.height/count
+        local panel = SetupComponent(rootPanel, Panel(Rect(0, h * (i-1), w, h), Colors.GRAY, Aligns.TOP_LEFT))
+        table.insert(panels_table, panel)
+    end
+
+    return panels_table
+end
+
 function SetupComponent(root, compObj, color, anchor, pivotX, pivotY)
     if color ~= nil then
         compObj.color = color
