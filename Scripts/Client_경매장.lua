@@ -1,3 +1,10 @@
+ITEM_REGISTER_EVENT_VAR = 2 -- 경매장 아이템 등록하는 공용 이벤트의 번호를 입력해 주세요.
+
+
+
+
+-------------------------------------------------------------------
+
 -- Starting
 function Open_Auction()
     Auction:Init()
@@ -24,14 +31,19 @@ Auction = { page = 1 }
         btn_sellTab.onClick.Add(function()
             Auction:Goto_SellTab()
         end)
+
+        local btn_exit = SetupComponent(self.panel, Button("X", Rect(-5, 5, 40, 40)), Colors.LIGHT_GRAY, Aligns.TOP_RIGHT, 1.0, 0)
+        btn_exit.onClick.Add(function()
+            screen.Destroy()
+        end)
     end
 
     function Auction:Goto_BuyTab()
         Auction:ClearTabPanel()
-        self.buyTab_panel = SetupComponent(self.panel, Panel(Rect(10, 50, 620, 300)), Colors.GREEN, Aligns.TOP_LEFT)
+        self.buyTab_panel = SetupComponent(self.panel, Panel(Rect(10, 50, 620, 300)), Colors.NONE, Aligns.TOP_LEFT)
         self.buyTab_panel.SetOpacity(0)
 
-        local itemlist_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 620, 240)), Colors.LIGHT_GRAY, Aligns.TOP_CENTER, 0.5, 0)
+        local itemlist_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 620, 240)), Colors.NONE, Aligns.TOP_CENTER, 0.5, 0)
 
         local arrowLeft_btn = SetupComponent(self.buyTab_panel, Button("<", Rect(-25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
         local arrowRight_btn = SetupComponent(self.buyTab_panel, Button(">", Rect(25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
@@ -67,7 +79,8 @@ function SetupSeparatingPanels(rootPanel, count)
     local panels_table = {}
     for i = 1, count do
         local w, h = rootPanel.width, rootPanel.height/count
-        local panel = SetupComponent(rootPanel, Panel(Rect(0, h * (i-1), w, h), Colors.GRAY, Aligns.TOP_LEFT))
+        local c = (i % 2 == 0) and Colors.LIGHT_GRAY or Colors.DARK_GRAY
+        local panel = SetupComponent(rootPanel, Panel(Rect(0, h * (i-1), w, h)), c, Aligns.TOP_LEFT)
         table.insert(panels_table, panel)
     end
 
@@ -94,10 +107,11 @@ end
 -- Consts
 Colors = {
     NONE = nil,
-    BLACK = Color(0, 0, 0),
-    GRAY = Color(60, 60, 60),
-    LIGHT_GRAY = Color(120, 120, 120),
-    GREEN = Color(0, 255, 0),
+    BLACK = Color(0, 0, 0, 255),
+    GRAY = Color(60, 60, 60, 255),
+    LIGHT_GRAY = Color(120, 120, 120, 255),
+    DARK_GRAY = Color(180, 180, 180, 255),
+    GREEN = Color(0, 255, 0, 255),
 }
 
 Aligns = {
