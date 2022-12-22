@@ -13,49 +13,37 @@ Auction = { page = 1 }
         screen.color = Colors.BLACK
         screen.SetOpacity(100)
 
-        self.panel = SetupComponent(Panel(Rect(0, 0, 640, 360)), Colors.GRAY, Aligns.MIDDLE_CENTER, 0.5, 0.5)
-        screen.AddChild(self.panel)
+        self.panel = SetupComponent(screen, Panel(Rect(0, 0, 640, 360)), Colors.GRAY, Aligns.MIDDLE_CENTER, 0.5, 0.5)
 
-        local btn_buyTab = SetupComponent(Button("구매", Rect(5, 5, 90, 40)), Colors.LIGHT_GRAY, Aligns.TOP_LEFT);
+        local btn_buyTab = SetupComponent(self.panel, Button("구매", Rect(5, 5, 90, 40)), Colors.LIGHT_GRAY, Aligns.TOP_LEFT);
         btn_buyTab.onClick.Add(function()
             Auction:Goto_BuyTab()
         end)
 
-        local btn_sellTab = SetupComponent(Button("판매", Rect(100, 5, 90, 40)), Colors.LIGHT_GRAY, Aligns.TOP_LEFT)
+        local btn_sellTab = SetupComponent(self.panel, Button("판매", Rect(100, 5, 90, 40)), Colors.LIGHT_GRAY, Aligns.TOP_LEFT)
         btn_sellTab.onClick.Add(function()
             Auction:Goto_SellTab()
         end)
-
-        self.panel.AddChild(btn_buyTab)
-        self.panel.AddChild(btn_sellTab)
     end
 
     function Auction:Goto_BuyTab()
         Auction:ClearTabPanel()
-        self.buyTab_panel = SetupComponent(Panel(Rect(10, 50, 620, 300)), Colors.GREEN, Aligns.TOP_LEFT)
+        self.buyTab_panel = SetupComponent(self.panel, Panel(Rect(10, 50, 620, 300)), Colors.GREEN, Aligns.TOP_LEFT)
         self.buyTab_panel.SetOpacity(0)
 
-        self.panel.AddChild(self.buyTab_panel)
+        local itemlist_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 620, 240)), Colors.LIGHT_GRAY, Aligns.TOP_CENTER, 0.5, 0)
 
-        local itemlist_panel = SetupComponent(Panel(Rect(0, 20, 620, 240)), Colors.LIGHT_GRAY, Aligns.TOP_CENTER, 0.5, 0)
+        local arrowLeft_btn = SetupComponent(self.buyTab_panel, Button("<", Rect(-25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
+        local arrowRight_btn = SetupComponent(self.buyTab_panel, Button(">", Rect(25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
 
-        local arrowLeft_btn = SetupComponent(Button("<", Rect(-25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
-
-        local arrowRight_btn = SetupComponent(Button(">", Rect(25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
-
-        local pageText = SetupComponent(Text(self.page .. "/" .. "2", Rect(80, -15, 40, 40)), Colors.NONE, Aligns.BOTTOM_CENTER, 0.5, 0.5)
-
-        self.buyTab_panel.AddChild(itemlist_panel)
-        self.buyTab_panel.AddChild(arrowLeft_btn)
-        self.buyTab_panel.AddChild(arrowRight_btn)
-        self.buyTab_panel.AddChild(pageText)
+        local pageText = SetupComponent(self.buyTab_panel, Text(self.page .. "/" .. "2", Rect(80, -15, 40, 40)), Colors.NONE, Aligns.BOTTOM_CENTER, 0.5, 0.5)
     end
 
     function Auction:Goto_SellTab()
         Auction:ClearTabPanel()
-        self.sellTab_panel = SetupComponent(Panel(Rect(10, 70, 620, 280)), Colors.BLACK, Aligns.TOP_LEFT)
+        self.sellTab_panel = SetupComponent(self.panel, Panel(Rect(10, 70, 620, 280)), Colors.BLACK, Aligns.TOP_LEFT)
 
-        self.panel.AddChild(self.sellTab_panel)
+
     end
 
     function Auction:ClearTabPanel()
@@ -70,14 +58,16 @@ Auction = { page = 1 }
     end
 
 
--- Util
-function SetupComponent(compObj, color, anchor, pivotX, pivotY)
+-- Utilities
+function SetupComponent(root, compObj, color, anchor, pivotX, pivotY)
     if color ~= nil then
         compObj.color = color
     end
     compObj.anchor = anchor
     compObj.pivotX = pivotX or 0
     compObj.pivotY = pivotY or 0
+
+    root.AddChild(compObj)
 
     return compObj
 end
