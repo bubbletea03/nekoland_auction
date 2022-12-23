@@ -69,8 +69,23 @@ Auction = { page = 1 }
         local amount_txt = SetupComponent(registering_panel, Text("개수", Rect(-50, 140, 30, 30)), nil, Aligns.TOP_CENTER, 0.5, 0)
         local amount_inputField = SetupComponent(registering_panel, InputField(Rect(20, 140, 100, 30)), nil, Aligns.TOP_CENTER, 0.5, 0)
 
-        local registering_btn = SetupComponent(registering_panel, Button("등록하기", Rect(0, 190, 80, 40)), Colors.LIGHT_GRAY, Aligns.TOP_CENTER, 0.5, 0)
-        
+        local moneyMode = "gold"
+        local gold_radioBtn = SetupComponent(registering_panel, Button("골드", Rect(-20, 180, 50, 30)), Colors.DARK_GRAY, Aligns.TOP_CENTER, 0.5, 0)
+        local ruby_radioBtn = SetupComponent(registering_panel, Button("루비", Rect(35, 180, 50, 30)), Colors.LIGHT_GRAY, Aligns.TOP_CENTER, 0.5, 0)
+
+        gold_radioBtn.onClick.Add(function()
+            moneyMode = "gold"
+            gold_radioBtn.color = Colors.DARK_GRAY
+            ruby_radioBtn.color = Colors.LIGHT_GRAY
+        end)
+        ruby_radioBtn.onClick.Add(function()
+            moneyMode = "ruby"
+            ruby_radioBtn.color = Colors.DARK_GRAY
+            gold_radioBtn.color = Colors.LIGHT_GRAY
+        end)
+
+        local registering_btn = SetupComponent(registering_panel, Button("등록하기", Rect(0, 220, 80, 40)), Colors.LIGHT_GRAY, Aligns.TOP_CENTER, 0.5, 0)
+
 
 
     end
@@ -123,9 +138,9 @@ end
 Colors = {
     NONE = Color(0, 0, 0, 0),
     BLACK = Color(0, 0, 0, 255),
+    DARK_GRAY = Color(40, 40, 40, 255),
     GRAY = Color(60, 60, 60, 255),
     LIGHT_GRAY = Color(120, 120, 120, 255),
-    DARK_GRAY = Color(180, 180, 180, 255),
     GREEN = Color(0, 255, 0, 255),
 }
 
