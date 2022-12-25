@@ -115,10 +115,12 @@ Auction = { page = 1 }
 
 
 
--- Utilities
+----------- Utilities -------------
+
+-- 한 패널 안에 count개의 새로운 패널들을 생성한다. [새로운 패널들을 테이블로 반환]
+-- 아이템 목록을 표시할 때 사용한다.
 function SetupSeparatingPanels(rootPanel, count)
-    -- 한 패널 안에 count개의 새로운 패널들을 생성한다. [새로운 패널들을 테이블로 반환]
-    -- 아이템 목록을 표시할 때 사용한다.
+    
     local panels_table = {}
     for i = 1, count do
         local w, h = rootPanel.width, rootPanel.height/count
@@ -149,7 +151,8 @@ end
 
 
 
--- Consts
+----------- Consts -------------
+
 Colors = {
     NONE = Color(0, 0, 0, 0),
     BLACK = Color(0, 0, 0, 255),
