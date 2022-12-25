@@ -1,10 +1,3 @@
-ITEM_REGISTER_EVENT_VAR = 2 -- 경매장 아이템 등록하는 공용 이벤트의 번호를 입력해 주세요.
-
-
-
-
--------------------------------------------------------------------
-
 -- Starting
 function Open_Auction()
     Auction:Init()
@@ -63,7 +56,7 @@ Auction = { page = 1 }
         self.item_img = SetupComponent(registering_panel, Image("", Rect(0 , 0, 60, 60)), nil, Aligns.TOP_CENTER, 0.5, 0)
         local item_selecting_btn = SetupComponent(registering_panel, Button("아이템 선택", Rect(0, 70, 100, 20)), Colors.LIGHT_GRAY, Aligns.TOP_CENTER, 0.5, 0)
         item_selecting_btn.onClick.Add(function()
-            Client.FireEvent("Auction:Request_SelectItem")
+            Client.FireEvent("S_Auction:Request_SelectItem")
         end)
 
         local price_txt = SetupComponent(registering_panel, Text("가격", Rect(-50, 100, 30, 30)), nil, Aligns.TOP_CENTER, 0.5, 0)
@@ -95,14 +88,32 @@ Auction = { page = 1 }
             self.buyTab_panel.Destroy() end
         if self.sellTab_panel ~= nil then
             self.sellTab_panel.Destroy() end
-        self.selected_item = nil
+        self.selected_itemID = nil
     end
 
-    function Auction:SelectItem(item)
-        self.selected_item = item
-        self.item_img.SetImageID(Client.GetItem(item).imageID)
+    function Auction:SelectItem(serialized_itemDB)
+        local itemDB = Utility.JSONParse(serialized_itemDB)
+        self.selected_itemDB = itemDB
+        local id = itemDB[1]
+        self.item_img.SetImageID(Client.GetItem(id).imageID)
     end
-    Client.GetTopic("Auction:SelectItem").Add(function(item) Auction:SelectItem(item) end)
+    Client.GetTopic("Auction:SelectItem").Add(function(param) Auction:SelectItem(param) end)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 -- Utilities
 function SetupSeparatingPanels(rootPanel, count)
@@ -131,6 +142,8 @@ function SetupComponent(root, compObj, color, anchor, pivotX, pivotY)
 
     return compObj
 end
+
+
 
 
 

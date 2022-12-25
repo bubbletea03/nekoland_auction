@@ -246,7 +246,7 @@ function s_market:registerItem2(item_price, num, item_count)
 
 	local list = {item.dataID,item_count,item.level,item_price}
 	for i, v in ipairs(item.options) do
-		table.insert(list, item.options[i].type)
+		table.insert(list, item.options[i].type) -- 옵션 넣는 곳이네 여기가 !!
 		table.insert(list, item.options[i].statID)
 		table.insert(list, item.options[i].value)
 	end
