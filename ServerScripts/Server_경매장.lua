@@ -72,26 +72,3 @@ function SerializeItemDB(itemDB)
 
     return serializedItemDB
 end
-
--- JSON 형태의 itemDB를 받아 dict 형식의 정돈된 테이블로 반환합니다.
-function ParseSerializedItemDB(serializedItemDB)
-    local parsedItemDB = Utility.JSONParse(serializedItemDB)
-    local itemDB = {
-        id = parsedItemDB[1],
-        level = parsedItemDB[2],
-        count = parsedItemDB[3],
-        price = parsedItemDB[4],
-        options = {}
-    }
-
-    for i = 5, #parsedItemDB, 3 do -- 인덱스 [5] 부턴 option들 나란히 있음. 3개씩 뭉쳐서 삽입하기
-        local option = {
-            type = parsedItemDB[i],
-            statID = parsedItemDB[i+1],
-            value = parsedItemDB[i+2]
-        }
-        table.insert(itemDB.options, option)
-    end
-
-    return itemDB
-end
