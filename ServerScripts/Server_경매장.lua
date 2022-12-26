@@ -84,7 +84,7 @@ function S_Auction:RegisterItem()
 end
 
 -- 등록된 아이템들의 정보를 클라이언트로 보냅니다.
-function S_Auction:SendRegisteredUserItems()
+function S_Auction:SendSellTabItems()
     
     local items = {}
 
@@ -99,9 +99,9 @@ function S_Auction:SendRegisteredUserItems()
         end
     end
 
-    unit.FireEvent("Auction:LoadRegisteredUserItems", Utility.JSONSerialize(items))
+    unit.FireEvent("Auction:LoadSellTabItems", Utility.JSONSerialize(items))
 end
-Server.GetTopic("S_Auction:SendRegisteredUserItems").Add(function(param) S_Auction:SendRegisteredUserItems(param) end)
+Server.GetTopic("S_Auction:SendSellTabItems").Add(function(param) S_Auction:SendSellTabItems(param) end)
 
 
 

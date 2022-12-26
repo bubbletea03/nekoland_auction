@@ -51,7 +51,7 @@ Auction = { page = 1 }
 
         local registered_itemlist_panel = SetupComponent(self.sellTab_panel, Panel(Rect(0, 20, 400, 240)), Colors.NONE, Aligns.TOP_LEFT)
         self.itemPanels = SetupSeparatingPanels(registered_itemlist_panel, 5);
-        Client.FireEvent("S_Auction:SendRegisteredUserItems")
+        Client.FireEvent("S_Auction:SendSellTabItems")
 
         self.isSelected = false -- 아이템이 선택되었는지
 
@@ -123,7 +123,7 @@ Auction = { page = 1 }
     Client.GetTopic("Auction:RefreshSellTab").Add(function() Auction:RefreshSellTab() end)
 
     -- 유저가 지금까지 등록한 아이템을 판매탭 패널에 띄워줍니다.
-    function Auction:LoadRegisteredUserItems(items_serialized) -- [이름맘에안듬]
+    function Auction:LoadSellTabItems(items_serialized)
 
         local items = Utility.JSONParse(items_serialized)
         local currentPanelIndex = 1
@@ -133,11 +133,25 @@ Auction = { page = 1 }
 
             local item_img = SetupComponent(currentPanel, Image("", Rect(0 , 0, 40, 40)), nil, Aligns.MIDDLE_LEFT, 0, 0.5)
             item_img.SetImageID(Client.GetItem(item.id).imageID)
-            
+
+            local priceStr
+            if item.moneyMode == "gold" then
+                priceStr = "<Color=Yellow>" .. item.price .. " 골드" .. "</color>"
+            else
+                priceStr = "<Color=#e061f9>" .. item.price .. " 루비" .. "</color>"
+            end
+
+            local txt = SetupComponent(currentPanel, Text("", Rect(0, 0, 200, 40)), nil, Aligns.MIDDLE_CENTER, 0.5, 0.5)
+            txt.text = Client.GetItem(item.id).name .. " " .. item.count .. "개" .. "\n" .. priceStr
+
             currentPanelIndex = currentPanelIndex + 1
         end
     end
-    Client.GetTopic("Auction:LoadRegisteredUserItems").Add(function(param) Auction:LoadRegisteredUserItems(param) end)
+    Client.GetTopic("Auction:LoadSellTabItems").Add(function(param) Auction:LoadSellTabItems(param) end)
+
+    function Auction:LoadAuctionItems(page)
+
+    end
 
 
 
