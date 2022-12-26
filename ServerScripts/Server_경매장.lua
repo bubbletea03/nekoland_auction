@@ -20,7 +20,6 @@ end
 Server.GetTopic("S_Auction:Request_SelectItem").Add(function() S_Auction:Request_SelectItem() end)
 
 function S_Auction:Response_SelectItem()
-
     local item = unit.player.GetItem(unit.GetVar(SELECTED_ITEM_VAR))
 
     if Server.GetItem(item.dataID).canTrade then
@@ -30,6 +29,43 @@ function S_Auction:Response_SelectItem()
         unit.SendCenterLabel("<Color=Red>거래 불가 아이템입니다.</color>")
     end
 end
+
+function S_Auction:CheckRegister(serialized_table) -- 가격, 개수 등을 체크하여 올바를 경우 아이템 등록으로 갑니다.
+
+    local table = Utility.JSONParse(serialized_table)
+    local isSelected = table.isSelected
+    local price = table.price
+    local amount = table.amount
+    local moneyMode = table.moneyMode
+
+    local item = unit.player.GetItem(unit.GetVar(SELECTED_ITEM_VAR))
+
+    if not isSelected then
+        unit.SendCenterLabel("아이템을 선택해 주세요.")
+        return
+    end
+
+    if not price or not amount then
+        unit.SendCenterLabel("가격과 개수를 입력해 주세요.")
+    end
+
+    if amount > item.count then
+        unit.SendCenterLabel("개수를 잘못 입력하셨습니다.")
+        return
+    end
+
+    MAX_PRICE = 200000000 -- 2억
+    if not (price > 0) or price > MAX_PRICE then
+        unit.SendCenterLabel("가격을 잘못 입력하셨습니다.")
+        return
+    end
+end
+Server.GetTopic("S_Auction:CheckRegister").Add(function(param) S_Auction:CheckRegister(param) end)
+
+function S_Auction:SendCenterLabel(str)
+    unit.SendCenterLabel(str)
+end
+Server.GetTopic("S_Auction:SendCenterLabel").Add(function(param) S_Auction(param) end)
 
 
 

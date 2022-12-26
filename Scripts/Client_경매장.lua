@@ -8,12 +8,12 @@ end
 Auction = { page = 1 }
     function Auction:Init()
 
-        local screen = Panel(Rect(0,0,Client.width,Client.height)) -- 최상위 UI 요소입니다.
-        screen.showOnTop = true
-        screen.color = Colors.BLACK
-        screen.SetOpacity(100)
+        self.screen = Panel(Rect(0,0,Client.width,Client.height)) -- 최상위 UI 요소입니다.
+        self.screen.showOnTop = true
+        self.screen.color = Colors.BLACK
+        self.screen.SetOpacity(100)
 
-        self.panel = SetupComponent(screen, Panel(Rect(0, 0, 640, 360)), Colors.GRAY, Aligns.MIDDLE_CENTER, 0.5, 0.5)
+        self.panel = SetupComponent(self.screen, Panel(Rect(0, 0, 640, 360)), Colors.GRAY, Aligns.MIDDLE_CENTER, 0.5, 0.5)
 
         local btn_buyTab = SetupComponent(self.panel, Button("구매", Rect(5, 5, 90, 40)), Colors.LIGHT_GRAY, Aligns.TOP_LEFT);
         btn_buyTab.onClick.Add(function()
@@ -27,7 +27,7 @@ Auction = { page = 1 }
 
         local btn_exit = SetupComponent(self.panel, Button("X", Rect(-5, 5, 40, 40)), Colors.LIGHT_GRAY, Aligns.TOP_RIGHT, 1.0, 0)
         btn_exit.onClick.Add(function()
-            screen.Destroy()
+            self.screen.Destroy()
         end)
     end
 
@@ -83,6 +83,17 @@ Auction = { page = 1 }
         end)
 
         local registering_btn = SetupComponent(registering_panel, Button("등록하기", Rect(0, 220, 80, 40)), Colors.LIGHT_GRAY, Aligns.TOP_CENTER, 0.5, 0)
+        registering_btn.onClick.Add(function()
+            local table = {
+                isSelected = self.isSelected,
+                price = tonumber(price_inputField.text),
+                amount = tonumber(amount_inputField.text),
+                moneyMode = moneyMode,
+            }
+
+            -- 올바른 등록인지 확인하러 서버 갔다오기.
+            Client.FireEvent("S_Auction:CheckRegister", Utility.JSONSerialize(table))
+        end)
     end
 
     function Auction:ClearTabPanel()
@@ -92,13 +103,13 @@ Auction = { page = 1 }
             self.sellTab_panel.Destroy() end
     end
 
-    -- 아이템 선택 버튼을 누르면 서버 스크립트를 거쳐 여기로 옵니다.
+    -- 아이템 선택 버튼을 누르면 서버를 거쳐 여기로 옵니다.
     function Auction:SelectItem(itemID)
         self.item_img.SetImageID(Client.GetItem(itemID).imageID)
         self.isSelected = true
     end
     Client.GetTopic("Auction:SelectItem").Add(function(param) Auction:SelectItem(param) end)
-    
+
     function Auction:UnselectItem() -- 선택한 템에 문제가 있을 경우 아이템 선택을 해제시킵니다.
         self.item_img.SetImage(nil)
         self.isSelected = false
@@ -120,13 +131,12 @@ Auction = { page = 1 }
 
 
 
-
 ----------- Utilities -------------
 
 -- 한 패널 안에 count개의 새로운 패널들을 생성한다. [새로운 패널들을 테이블로 반환]
 -- 아이템 목록을 표시할 때 사용한다.
 function SetupSeparatingPanels(rootPanel, count)
-    
+
     local panels_table = {}
     for i = 1, count do
         local w, h = rootPanel.width, rootPanel.height/count
@@ -142,7 +152,9 @@ function SetupComponent(root, compObj, color, anchor, pivotX, pivotY)
     if color ~= nil then
         compObj.color = color
     end
-    compObj.anchor = anchor
+    if anchor ~= nil then
+        compObj.anchor = anchor
+    end
     compObj.pivotX = pivotX or 0
     compObj.pivotY = pivotY or 0
 
@@ -185,6 +197,7 @@ end
 Colors = {
     NONE = Color(0, 0, 0, 0),
     BLACK = Color(0, 0, 0, 255),
+    DEEPDARK_GRAY = Color(20, 20, 20, 255),
     DARK_GRAY = Color(40, 40, 40, 255),
     GRAY = Color(60, 60, 60, 255),
     LIGHT_GRAY = Color(120, 120, 120, 255),
