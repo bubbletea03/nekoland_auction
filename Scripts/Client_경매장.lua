@@ -124,14 +124,17 @@ Auction = { page = 1 }
 
     -- 유저가 지금까지 등록한 아이템을 판매탭 패널에 띄워줍니다.
     function Auction:LoadRegisteredUserItems(items_serialized) -- [이름맘에안듬]
-        local currentPanelIndex = 1
-        print(items_serialized)
+
         local items = Utility.JSONParse(items_serialized)
+        local currentPanelIndex = 1
+
         for i, item in ipairs(items) do
             local currentPanel = self.itemPanels[currentPanelIndex]
+
+            local item_img = SetupComponent(currentPanel, Image("", Rect(0 , 0, 40, 40)), nil, Aligns.MIDDLE_LEFT, 0, 0.5)
+            item_img.SetImageID(Client.GetItem(item.id).imageID)
+            
             currentPanelIndex = currentPanelIndex + 1
-            local item_img = SetupComponent(currentPanel, Image("", Rect(0 , 0, 60, 60)), nil, Aligns.MIDDLE_CENTER, 0.5, 0.5)
-            item_img.SetImageID(item.dataID)
         end
     end
     Client.GetTopic("Auction:LoadRegisteredUserItems").Add(function(param) Auction:LoadRegisteredUserItems(param) end)

@@ -79,6 +79,7 @@ Server.GetTopic("S_Auction:CheckRegister").Add(function(param) S_Auction:CheckRe
 function S_Auction:RegisterItem()
     local varNum = GetEmptyRegisterSpaceVarNumber()
     unit.SetStringVar(varNum, unit.GetStringVar(TEMP_STRING_VAR)) -- 임시 저장된 아이템을 리얼로 등록합니다.
+    unit.FireEvent("Auction:RefreshSellTab")
 end
 
 -- 등록된 아이템들의 정보를 클라이언트로 보냅니다.
@@ -115,7 +116,7 @@ Server.GetTopic("S_Auction:SendRegisteredUserItems").Add(function(param) S_Aucti
 
 -- unit 기준으로 얻은 item을 parameter로 받아 dict 형식의 정돈된 테이블로 반환한다.
 function ConvertItemToDict(item)
-    local itemDB = {
+    local item_dict = {
         id = item.dataID,
         level = item.level,
         count = nil, -- price와 count는 아이템을 실제로 등록할 때 새로 초기화됩니다.
@@ -123,10 +124,10 @@ function ConvertItemToDict(item)
         options = {}
     }
     for i, option in ipairs(item.options) do
-        table.insert(itemDB.options, option)
+        table.insert(item_dict.options, option)
     end
 
-    return itemDB
+    return item_dict
 end
 
 function GetEmptyRegisterSpaceVarNumber() -- 등록할 공간이 있는지 확인하고 있다면 번호를 반환합니다.
@@ -135,7 +136,7 @@ function GetEmptyRegisterSpaceVarNumber() -- 등록할 공간이 있는지 확�
         if not var or var == "" then -- 빈 공간이 하나라도 있을 경우 번호 반환하고 종료
             return var_number
         end
-        
+
         local item = Utility.JSONParse(var)
         if not item.id then -- 아이템 형식이 아닐 경우 쓰레기값(=빈공간) 이므로 이 경우에도 반환
             return var_number
