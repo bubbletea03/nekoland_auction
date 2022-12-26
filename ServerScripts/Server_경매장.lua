@@ -70,6 +70,7 @@ function S_Auction:CheckRegister(serialized_table) -- 가격, 개수 등을 체�
     local item_dict = ConvertItemToDict(item)
     item_dict.count = amount
     item_dict.price = price
+    item_dict.moneyMode = moneyMode
 
     unit.SetStringVar(TEMP_STRING_VAR, Utility.JSONSerialize(item_dict)) -- 등록할 아이템을 임시 저장합니다.
     unit.StartGlobalEvent(ASK_REGISTER_EVENT_VAR) -- 정말 등록할 것인지 물어봅니다.
@@ -119,8 +120,9 @@ function ConvertItemToDict(item)
     local item_dict = {
         id = item.dataID,
         level = item.level,
-        count = nil, -- price와 count는 아이템을 실제로 등록할 때 새로 초기화됩니다.
+        count = nil, -- 개수/가격/화폐는 아이템을 실제로 등록할 때 새로 초기화됩니다.
         price = nil,
+        moneyMode = nil,
         options = {}
     }
     for i, option in ipairs(item.options) do
