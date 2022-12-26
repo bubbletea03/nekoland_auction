@@ -52,6 +52,8 @@ Auction = { page = 1 }
         local registered_itemlist_panel = SetupComponent(self.sellTab_panel, Panel(Rect(0, 20, 400, 240)), Colors.NONE, Aligns.TOP_LEFT)
         local itemPanels = SetupSeparatingPanels(registered_itemlist_panel, 5);
 
+        self.isSelected = false -- 아이템이 선택되었는지
+
         local registering_panel = SetupComponent(self.sellTab_panel, Panel(Rect(400, 20, 220, 240)), Colors.NONE, Aligns.TOP_LEFT)
         self.item_img = SetupComponent(registering_panel, Image("", Rect(0 , 0, 60, 60)), nil, Aligns.TOP_CENTER, 0.5, 0)
         local item_selecting_btn = SetupComponent(registering_panel, Button("아이템 선택", Rect(0, 70, 100, 20)), Colors.LIGHT_GRAY, Aligns.TOP_CENTER, 0.5, 0)
@@ -88,16 +90,20 @@ Auction = { page = 1 }
             self.buyTab_panel.Destroy() end
         if self.sellTab_panel ~= nil then
             self.sellTab_panel.Destroy() end
-        self.selected_itemID = nil
     end
 
-    function Auction:SelectItem(serialized_itemDB)
-        local itemDB = ParseSerializedItemDB(serialized_itemDB)
-        self.selected_itemDB = itemDB
-        local id = itemDB.id
-        self.item_img.SetImageID(Client.GetItem(id).imageID)
+    -- 아이템 선택 버튼을 누르면 서버 스크립트를 거쳐 여기로 옵니다.
+    function Auction:SelectItem(itemID)
+        self.item_img.SetImageID(Client.GetItem(itemID).imageID)
+        self.isSelected = true
     end
     Client.GetTopic("Auction:SelectItem").Add(function(param) Auction:SelectItem(param) end)
+    
+    function Auction:UnselectItem() -- 선택한 템에 문제가 있을 경우 아이템 선택을 해제시킵니다.
+        self.item_img.SetImage(nil)
+        self.isSelected = false
+    end
+    Client.GetTopic("Auction:UnselectItem").Add(function() Auction:UnselectItem() end)
 
 
 
