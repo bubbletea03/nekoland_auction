@@ -125,9 +125,11 @@ Auction = { page = 1 }
     -- 유저가 지금까지 등록한 아이템을 판매탭 패널에 띄워줍니다.
     function Auction:LoadRegisteredUserItems(items_serialized) -- [이름맘에안듬]
         local currentPanelIndex = 1
+        print(items_serialized)
         local items = Utility.JSONParse(items_serialized)
         for i, item in ipairs(items) do
             local currentPanel = self.itemPanels[currentPanelIndex]
+            currentPanelIndex = currentPanelIndex + 1
             local item_img = SetupComponent(currentPanel, Image("", Rect(0 , 0, 60, 60)), nil, Aligns.MIDDLE_CENTER, 0.5, 0.5)
             item_img.SetImageID(item.dataID)
         end
@@ -151,19 +153,19 @@ Auction = { page = 1 }
 
 ----------- Utilities -------------
 
--- 한 패널 안에 count개의 새로운 패널들을 생성한다. [새로운 패널들을 테이블로 반환]
+-- 한 패널 안에 count개의 새로운 패널들을 생성하여 반환한다.
 -- 아이템 목록을 표시할 때 사용한다.
 function SetupSeparatingPanels(rootPanel, count)
 
-    local panels_table = {}
+    local panels = {}
     for i = 1, count do
         local w, h = rootPanel.width, rootPanel.height/count
         local c = (i % 2 == 0) and Colors.LIGHT_GRAY or Colors.DARK_GRAY
         local panel = SetupComponent(rootPanel, Panel(Rect(0, h * (i-1), w, h)), c, Aligns.TOP_LEFT)
-        table.insert(panels_table, panel)
+        table.insert(panels, panel)
     end
 
-    return panels_table
+    return panels
 end
 
 function SetupComponent(root, compObj, color, anchor, pivotX, pivotY)

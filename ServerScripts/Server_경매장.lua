@@ -89,9 +89,11 @@ function S_Auction:SendRegisteredUserItems()
     for i, var_number in ipairs(ITEM_STORAGE_STRING_VARS) do
         local var = unit.GetStringVar(var_number)
 
-        if var and var ~= "" then
+        if var ~= nil and var ~= "" then
             local item = Utility.JSONParse(var)
-            table.insert(items, item)
+            if item.id then -- id에 접근하여 item 형식의 정보인지 체크합니다. (쓰레기값 들어가있는 경우 방지)
+                table.insert(items, item)
+            end
         end
     end
 
@@ -131,6 +133,11 @@ function GetEmptyRegisterSpaceVarNumber() -- 등록할 공간이 있는지 확�
     for i, var_number in ipairs(ITEM_STORAGE_STRING_VARS) do
         local var = unit.GetStringVar(var_number)
         if not var or var == "" then -- 빈 공간이 하나라도 있을 경우 번호 반환하고 종료
+            return var_number
+        end
+        
+        local item = Utility.JSONParse(var)
+        if not item.id then -- 아이템 형식이 아닐 경우 쓰레기값(=빈공간) 이므로 이 경우에도 반환
             return var_number
         end
     end
