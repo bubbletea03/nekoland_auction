@@ -50,7 +50,8 @@ Auction = { page = 1 }
         self.sellTab_panel = SetupComponent(self.panel, Panel(Rect(10, 50, 620, 300)), Colors.NONE, Aligns.TOP_LEFT)
 
         local registered_itemlist_panel = SetupComponent(self.sellTab_panel, Panel(Rect(0, 20, 400, 240)), Colors.NONE, Aligns.TOP_LEFT)
-        local itemPanels = SetupSeparatingPanels(registered_itemlist_panel, 5);
+        self.itemPanels = SetupSeparatingPanels(registered_itemlist_panel, 5);
+        Client.FireEvent("S_Auction:SendRegisteredUserItems")
 
         self.isSelected = false -- 아이템이 선택되었는지
 
@@ -115,6 +116,23 @@ Auction = { page = 1 }
         self.isSelected = false
     end
     Client.GetTopic("Auction:UnselectItem").Add(function() Auction:UnselectItem() end)
+
+    function Auction:RefreshSellTab() -- 아이템 등록 완료 후 판매탭 새로고침 시킵니다.
+        Auction:Goto_SellTab()
+    end
+    Client.GetTopic("Auction:RefreshSellTab").Add(function() Auction:RefreshSellTab() end)
+
+    -- 유저가 지금까지 등록한 아이템을 판매탭 패널에 띄워줍니다.
+    function Auction:LoadRegisteredUserItems(items_serialized) -- [이름맘에안듬]
+        local currentPanelIndex = 1
+        local items = Utility.JSONParse(items_serialized)
+        for i, item in ipairs(items) do
+            local currentPanel = self.itemPanels[currentPanelIndex]
+            local item_img = SetupComponent(currentPanel, Image("", Rect(0 , 0, 60, 60)), nil, Aligns.MIDDLE_CENTER, 0.5, 0.5)
+            item_img.SetImageID(item.dataID)
+        end
+    end
+    Client.GetTopic("Auction:LoadRegisteredUserItems").Add(function(param) Auction:LoadRegisteredUserItems(param) end)
 
 
 

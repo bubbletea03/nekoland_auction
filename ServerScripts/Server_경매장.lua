@@ -81,6 +81,23 @@ function S_Auction:RegisterItem()
     unit.SetStringVar(varNum, unit.GetStringVar(TEMP_STRING_VAR)) -- 임시 저장된 아이템을 리얼로 등록합니다.
 end
 
+-- 등록된 아이템들의 정보를 클라이언트로 보냅니다.
+function S_Auction:SendRegisteredUserItems()
+    
+    local items = {}
+
+    for i, var_number in ipairs(ITEM_STORAGE_STRING_VARS) do
+        local var = unit.GetStringVar(var_number)
+
+        if var and var ~= "" then
+            local item = Utility.JSONParse(var)
+            table.insert(items, item)
+        end
+    end
+
+    unit.FireEvent("Auction:LoadRegisteredUserItems", Utility.JSONSerialize(items))
+end
+Server.GetTopic("S_Auction:SendRegisteredUserItems").Add(function(param) S_Auction:SendRegisteredUserItems(param) end)
 
 
 
@@ -112,7 +129,7 @@ end
 
 function GetEmptyRegisterSpaceVarNumber() -- 등록할 공간이 있는지 확인하고 있다면 번호를 반환합니다.
     for i, var_number in ipairs(ITEM_STORAGE_STRING_VARS) do
-        local var = unit.GetStringVar(var_number) 
+        local var = unit.GetStringVar(var_number)
         if not var or var == "" then -- 빈 공간이 하나라도 있을 경우 번호 반환하고 종료
             return var_number
         end
