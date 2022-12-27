@@ -99,18 +99,7 @@ end
 -- 등록된 아이템들의 정보를 클라이언트로 보냅니다.
 function S_Auction:SendSellTabItems()
 
-    local itemDB_list = {}
-
-    for i, var_number in ipairs(ITEM_STORAGE_STRING_VARS) do
-        local var = unit.GetStringVar(var_number)
-
-        if var ~= nil and var ~= "" then
-            local itemDB = Utility.JSONParse(var)
-            if itemDB.id then -- id에 접근하여 item 형식의 정보인지 체크합니다. (쓰레기값 들어가있는 경우 방지)
-                table.insert(itemDB_list, itemDB)
-            end
-        end
-    end
+    local itemDB_list = GetItemDBListOfPlayer()
 
     unit.FireEvent("Auction:LoadSellTabItems", Utility.JSONSerialize(itemDB_list))
 end
@@ -132,6 +121,14 @@ function S_Auction:WithdrawItem(itemVarNum)
     unit.FireEvent("Auction:RefreshSellTab")
 end
 Server.GetTopic("S_Auction:WithdrawItem").Add(function(param) S_Auction:WithdrawItem(param) end)
+
+-- 경매장 내 등록된 모든 아이템을 탐색하여 클라이언트로 보냅니다.
+function S_Auction:SendAuctionItems()
+    local itemDB_list
+    for i, player in ipairs(Server.players) do
+    end
+end
+Server.GetTopic("S_Auction:SendAuctionItems").Add(function(param) S_Auction:SendAuctionItems(param) end)
 
 
 
@@ -176,4 +173,28 @@ function GetEmptyRegisterSpaceVarNumber() -- 등록할 공간이 있는지 확�
     end
 
     return nil
+end
+
+-- 플레이어가 등록한 아이템 정보들을 ItemDB_list로 반환합니다.
+-- param을 보내지 않을 경우 unit 자기 자신을 기준으로 합니다.
+function GetItemDBListOfPlayer(player)
+    local itemDB_list = {}
+
+    for i, var_number in ipairs(ITEM_STORAGE_STRING_VARS) do
+        local var
+        if player then
+            var = player.unit.GetStringVar(var_number)
+        else
+            var = unit.GetStringVar(var_number)
+        end
+
+        if var ~= nil and var ~= "" then
+            local itemDB = Utility.JSONParse(var)
+            if itemDB.id then -- id에 접근하여 item 형식의 정보인지 체크합니다. (쓰레기값 들어가있는 경우 방지)
+                table.insert(itemDB_list, itemDB)
+            end
+        end
+    end
+
+    return itemDB_list
 end

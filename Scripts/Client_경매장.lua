@@ -161,7 +161,7 @@ Auction = { page = 1 }
     Client.GetTopic("Auction:LoadSellTabItems").Add(function(param) Auction:LoadSellTabItems(param) end)
 
     function Auction:LoadAuctionItems(page)
-
+        -- 서버에서 정보 갖고오기
     end
 
 
@@ -188,7 +188,7 @@ function SetupSeparatingPanels(rootPanel, count)
     local panels = {}
     for i = 1, count do
         local w, h = rootPanel.width, rootPanel.height/count
-        local c = (i % 2 == 0) and Colors.LIGHT_GRAY or Colors.DARK_GRAY
+        local c = (i % 2 == 0) and Colors.DARK_GRAY or Colors.DEEPDARK_GRAY
         local panel = SetupComponent(rootPanel, Panel(Rect(0, h * (i-1), w, h)), c, Aligns.TOP_LEFT)
         table.insert(panels, panel)
     end
