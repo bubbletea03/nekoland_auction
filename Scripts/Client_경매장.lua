@@ -208,6 +208,11 @@ Auction = { page = 1 }
         end
     end
 
+    function Auction:Close()
+        self.screen.Destroy()
+    end
+    Client.GetTopic("Auction:Close").Add(function(param) Auction:Close(param) end)
+
 
 
 

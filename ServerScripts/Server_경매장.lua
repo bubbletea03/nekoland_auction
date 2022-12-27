@@ -150,6 +150,8 @@ function S_Auction:CheckBuy(itemDB_serialized) -- 정말 구매할 것인지 물
     if itemDB.moneyMode == "gold" and itemDB.price > unit.gameMoney then
         unit.SendCenterLabel("금액이 부족합니다.")
         return
+    elseif itemDB.price then
+        -- 루비
     end
 
     unit.SetStringVar(TEMP_STRING_VAR, itemDB_serialized) -- 구매할 아이템을 임시 저장합니다.
@@ -169,10 +171,20 @@ function S_Auction:BuyItem()
         return
     end
 
+    if itemDB.moneyMode == "gold" then
+        unit.AddGameMoney( -itemDB.price )
+        target_player.unit.AddGameMoney( itemDB.price )
+        target_player.unit.SendCenterLabel("등록한 아이템이 판매되었습니다.")
+    else
+        -- 루비
+    end
+
     target_player.unit.SetStringVar(itemDB.varNum, nil) -- 구매했으므로 판매자의 등록된 아이템을 삭제시킵니다.
 
     local item = GetItemByDB(itemDB)
     unit.AddItemByTItem(item, true)
+
+    unit.FireEvent("Auction:Close")
 end
 
 
