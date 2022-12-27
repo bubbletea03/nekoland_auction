@@ -125,14 +125,9 @@ function S_Auction:WithdrawItem(itemVarNum)
     local itemDB = Utility.JSONParse(unit.GetStringVar(itemVarNum))
     unit.SetStringVar(itemVarNum, nil)
 
-    -- 아이템 객체 생성 로직
-    local item = Server.CreateItem(itemDB.id, itemDB.count)
-    item.level = itemDB.level
-    for _, option in ipairs(itemDB.options) do
-        Utility.AddItemOption(item, option.type, option.statID, option.value)
-    end
-
+    local item = GetItemByDB(itemDB)
     unit.AddItemByTItem(item, true)
+
     unit.FireEvent("Auction:RefreshSellTab")
 end
 Server.GetTopic("S_Auction:WithdrawItem").Add(function(param) S_Auction:WithdrawItem(param) end)
@@ -150,12 +145,34 @@ end
 Server.GetTopic("S_Auction:SendAuctionItems").Add(function(param) S_Auction:SendAuctionItems(param) end)
 
 function S_Auction:CheckBuy(itemDB_serialized) -- 정말 구매할 것인지 물어보고 진행시킵니다.
+    local itemDB = Utility.JSONParse(itemDB_serialized)
+
+    if itemDB.moneyMode == "gold" and itemDB.price > unit.gameMoney then
+        unit.SendCenterLabel("금액이 부족합니다.")
+        return
+    end
+
     unit.SetStringVar(TEMP_STRING_VAR, itemDB_serialized) -- 구매할 아이템을 임시 저장합니다.
-    unit.StartGlobalEvent(ASK_REGISTER_EVENT_VAR)
+    unit.StartGlobalEvent(ASK_BUY_EVENT_VAR)
 end
 Server.GetTopic("S_Auction:CheckBuy").Add(function(param) S_Auction:CheckBuy(param) end)
 
 function S_Auction:BuyItem()
+    local itemDB = Utility.JSONParse(unit.GetStringVar(TEMP_STRING_VAR))
+
+    local target_player = FindPlayerByName(itemDB.playerName) -- 판매자
+
+    -- ※ 예외처리. 이미 팔렸을 경우
+    local var = target_player.unit.GetStringVar(itemDB.varNum)
+    if not var or var == "" then
+        unit.SendCenterLabel("<color=Red>존재하지 않는 아이템입니다.</color>")
+        return
+    end
+
+    target_player.unit.SetStringVar(itemDB.varNum, nil) -- 구매했으므로 판매자의 등록된 아이템을 삭제시킵니다.
+
+    local item = GetItemByDB(itemDB)
+    unit.AddItemByTItem(item, true)
 end
 
 
@@ -232,5 +249,23 @@ end
 function Concat(root_table, other_table) -- 기준 테이블에 다른 테이블을 연결시킵니다. (리스트형 테이블) [반환값 없음]
     for _, v in ipairs(other_table) do
         table.insert(root_table, v)
+    end
+end
+
+function GetItemByDB(itemDB) -- dict형 item 테이블을 받아 아이템을 반환합니다.
+    local item = Server.CreateItem(itemDB.id, itemDB.count)
+    item.level = itemDB.level
+    for _, option in ipairs(itemDB.options) do
+        Utility.AddItemOption(item, option.type, option.statID, option.value)
+    end
+
+    return item
+end
+
+function FindPlayerByName(name)
+    for _, player in ipairs(Server.players) do
+        if player.name == name then
+            return player
+        end
     end
 end
