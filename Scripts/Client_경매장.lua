@@ -29,6 +29,8 @@ Auction = { page = 1 }
         btn_exit.onClick.Add(function()
             self.screen.Destroy()
         end)
+
+        Client.FireEvent("S_Auction:SendAuctionItems")
     end
 
     function Auction:Goto_BuyTab()
@@ -37,7 +39,7 @@ Auction = { page = 1 }
 
         local itemlist_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 620, 240)), Colors.NONE, Aligns.TOP_CENTER, 0.5, 0)
         self.itemPanels = SetupSeparatingPanels(itemlist_panel, 5); -- '아이템 목록 패널' 안에 5개의 '아이템 패널'을 만든다.
-        Client.FireEvent("S_Auction:SendAuctionItems")
+        Auction:LoadBuyTabItems(1)
 
         local arrowLeft_btn = SetupComponent(self.buyTab_panel, Button("<", Rect(-25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
         local arrowRight_btn = SetupComponent(self.buyTab_panel, Button(">", Rect(25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
@@ -150,8 +152,29 @@ Auction = { page = 1 }
     end
     Client.GetTopic("Auction:LoadAuctionItems").Add(function(param) Auction:LoadAuctionItems(param) end)
 
+    -- 페이지 번호를 받아 구매탭에 템들을 띄웁니다.
     function Auction:LoadBuyTabItems(page)
 
+        if not self.itemDB_list then
+            return
+        end
+
+        local currentPanelIndex = 1
+
+        local aPage_itemDB_list = Slice(self.itemDB_list, page*5-4, page*5)
+
+        for _, itemDB in ipairs(aPage_itemDB_list) do
+            local currentPanel = self.itemPanels[currentPanelIndex]
+
+            FillItemPanel(currentPanel, itemDB)
+
+            local btn = SetupComponent(currentPanel, Button("구매", Rect(-5, 0, 35, 35)), Colors.GRAY, Aligns.MIDDLE_RIGHT, 1.0, 0.5)
+            btn.onClick.Add(function()
+                -- Client.FireEvent("S_Auction:WithdrawItem", itemDB.varNum)
+            end)
+
+            currentPanelIndex = currentPanelIndex + 1
+        end
     end
 
 
@@ -221,6 +244,17 @@ function FillItemPanel(itemPanel, itemDB)
 
     local txt = SetupComponent(itemPanel, Text("", Rect(0, 0, 200, 40)), nil, Aligns.MIDDLE_CENTER, 0.5, 0.5)
     txt.text = Client.GetItem(itemDB.id).name .. " " .. itemDB.count .. "개" .. "\n" .. priceStr
+end
+
+function Slice(targetTable, startIdx, endIdx) -- 리스트형 테이블을 받아 원하는 만큼 잘라서 반환합니다.
+    local resultTable = {}
+    for i = startIdx, endIdx do
+        if targetTable[i] then
+            table.insert(resultTable, targetTable[i])
+        end
+    end
+
+    return resultTable
 end
 
 
