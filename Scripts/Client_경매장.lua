@@ -36,7 +36,8 @@ Auction = { page = 1 }
         self.buyTab_panel = SetupComponent(self.panel, Panel(Rect(10, 50, 620, 300)), Colors.NONE, Aligns.TOP_LEFT)
 
         local itemlist_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 620, 240)), Colors.NONE, Aligns.TOP_CENTER, 0.5, 0)
-        local itemPanels = SetupSeparatingPanels(itemlist_panel, 5); -- '아이템 목록 패널' 안에 5개의 '아이템 패널'을 만든다.
+        self.itemPanels = SetupSeparatingPanels(itemlist_panel, 5); -- '아이템 목록 패널' 안에 5개의 '아이템 패널'을 만든다.
+        Client.FireEvent("S_Auction:SendAuctionItems")
 
         local arrowLeft_btn = SetupComponent(self.buyTab_panel, Button("<", Rect(-25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
         local arrowRight_btn = SetupComponent(self.buyTab_panel, Button(">", Rect(25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
@@ -128,7 +129,7 @@ Auction = { page = 1 }
         local itemDB_list = Utility.JSONParse(itemDB_list_serialized)
         local currentPanelIndex = 1
 
-        for i, itemDB in ipairs(itemDB_list) do
+        for _, itemDB in ipairs(itemDB_list) do
             local currentPanel = self.itemPanels[currentPanelIndex]
 
             local item_img = SetupComponent(currentPanel, Image("", Rect(0 , 0, 40, 40)), nil, Aligns.MIDDLE_LEFT, 0, 0.5)

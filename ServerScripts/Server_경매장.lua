@@ -1,8 +1,16 @@
+--------------------------------------------------------
 -- Made by 기윤e
 -- 깃허브 주소: https://github.com/bubbletea03
 -- References 한량, 사랑요
+-- 질문 받아주신 사랑요, B M, Windmill님 감사합니다.
+--------------------------------------------------------
+-- 2차 수정 및 배포 가능합니다. 출처는 밝혀주세요.
+--------------------------------------------------------
 
 
+
+
+------------------------------------------------------------------
 -- 번호 입력 시 다른 스크립트와 겹치지 않도록 주의해 주세요.
 
 ITEM_REGISTER_EVENT_VAR = 2 -- 경매장 아이템 등록하는 공용 이벤트의 번호를 입력해 주세요.
@@ -13,9 +21,14 @@ ITEM_STORAGE_STRING_VARS = {101,102,103,104,105} -- 아이템을 저장할 개�
 
 SELECTED_ITEM_VAR = 0 -- 공용 이벤트에서의 선택 아이템 변수의 번호를 입력해 주세요.
 
-
-
+RUBY_ITEM_VAR = 90 -- 루비의 아이템 코드 번호를 입력해 주세요.
 -------------------------------------------------------------------
+
+
+
+
+
+
 
 -- Auction Server
 S_Auction = {}
@@ -76,6 +89,7 @@ function S_Auction:CheckRegister(serialized_table) -- 가격, 개수 등을 체�
     itemDB.count = amount
     itemDB.price = price
     itemDB.moneyMode = moneyMode
+    itemDB.playerName = unit.name
 
     unit.SetStringVar(TEMP_STRING_VAR, Utility.JSONSerialize(itemDB)) -- 등록할 아이템을 임시 저장합니다.
     unit.StartGlobalEvent(ASK_REGISTER_EVENT_VAR) -- 정말 등록할 것인지 물어봅니다.
@@ -113,7 +127,7 @@ function S_Auction:WithdrawItem(itemVarNum)
     -- 아이템 객체 생성 로직
     local item = Server.CreateItem(itemDB.id, itemDB.count)
     item.level = itemDB.level
-    for i, option in ipairs(itemDB.options) do
+    for _, option in ipairs(itemDB.options) do
         Utility.AddItemOption(item, option.type, option.statID, option.value)
     end
 
@@ -124,9 +138,13 @@ Server.GetTopic("S_Auction:WithdrawItem").Add(function(param) S_Auction:Withdraw
 
 -- 경매장 내 등록된 모든 아이템을 탐색하여 클라이언트로 보냅니다.
 function S_Auction:SendAuctionItems()
-    local itemDB_list
-    for i, player in ipairs(Server.players) do
+    local itemDB_list = {}
+    for _, player in ipairs(Server.players) do
+        local aPlayer_itemDB_list = GetItemDBListOfPlayer(player)
+        Concat(itemDB_list, aPlayer_itemDB_list)
     end
+
+    unit.FireEvent("Auction:RefreshSellTab")
 end
 Server.GetTopic("S_Auction:SendAuctionItems").Add(function(param) S_Auction:SendAuctionItems(param) end)
 
@@ -147,12 +165,13 @@ function ConvertItemToDict(item)
     local item_dict = {
         id = item.dataID,
         level = item.level,
-        count = nil, -- 개수/가격/화폐는 아이템을 실제로 등록할 때 새로 초기화됩니다.
+        count = nil, -- nil 정보들은 아이템을 실제로 등록할 때 새로 초기화됩니다.
         price = nil,
         moneyMode = nil,
+        playerName = nil,
         options = {}
     }
-    for i, option in ipairs(item.options) do
+    for _, option in ipairs(item.options) do
         table.insert(item_dict.options, option)
     end
 
@@ -160,7 +179,7 @@ function ConvertItemToDict(item)
 end
 
 function GetEmptyRegisterSpaceVarNumber() -- 등록할 공간이 있는지 확인하고 있다면 번호를 반환합니다.
-    for i, var_number in ipairs(ITEM_STORAGE_STRING_VARS) do
+    for _, var_number in ipairs(ITEM_STORAGE_STRING_VARS) do
         local var = unit.GetStringVar(var_number)
         if not var or var == "" then -- 빈 공간이 하나라도 있을 경우 번호 반환하고 종료
             return var_number
@@ -180,7 +199,7 @@ end
 function GetItemDBListOfPlayer(player)
     local itemDB_list = {}
 
-    for i, var_number in ipairs(ITEM_STORAGE_STRING_VARS) do
+    for _, var_number in ipairs(ITEM_STORAGE_STRING_VARS) do
         local var
         if player then
             var = player.unit.GetStringVar(var_number)
@@ -197,4 +216,10 @@ function GetItemDBListOfPlayer(player)
     end
 
     return itemDB_list
+end
+
+function Concat(root_table, other_table) -- 기준 테이블에 다른 테이블을 연결시킵니다. (리스트형 테이블) [반환값 없음]
+    for _, v in ipairs(other_table) do
+        table.insert(root_table, v)
+    end
 end
