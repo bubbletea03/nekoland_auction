@@ -132,24 +132,7 @@ Auction = { page = 1 }
         for _, itemDB in ipairs(itemDB_list) do
             local currentPanel = self.itemPanels[currentPanelIndex]
 
-            local item_img = SetupComponent(currentPanel, Image("", Rect(0 , 0, 40, 40)), nil, Aligns.MIDDLE_LEFT, 0, 0.5)
-            item_img.SetImageID(Client.GetItem(itemDB.id).imageID)
-
-            if itemDB.level > 0 then
-                local item_level_txt = SetupComponent(item_img, Text("<Color=#4FF53A>+" .. itemDB.level .. "</color>", Rect(0, 0, 20, 20)), nil, Aligns.TOP_LEFT, 0, 0)
-                item_level_txt.borderEnabled = true
-                item_level_txt.fontStyle = 1 -- Bold
-            end
-
-            local priceStr
-            if itemDB.moneyMode == "gold" then
-                priceStr = "<Color=Yellow>" .. itemDB.price .. " 골드" .. "</color>"
-            else
-                priceStr = "<Color=#e061f9>" .. itemDB.price .. " 루비" .. "</color>"
-            end
-
-            local txt = SetupComponent(currentPanel, Text("", Rect(0, 0, 200, 40)), nil, Aligns.MIDDLE_CENTER, 0.5, 0.5)
-            txt.text = Client.GetItem(itemDB.id).name .. " " .. itemDB.count .. "개" .. "\n" .. priceStr
+            FillItemPanel(currentPanel, itemDB)
 
             local btn = SetupComponent(currentPanel, Button("회수", Rect(-5, 0, 35, 35)), Colors.GRAY, Aligns.MIDDLE_RIGHT, 1.0, 0.5)
             btn.onClick.Add(function()
@@ -161,8 +144,14 @@ Auction = { page = 1 }
     end
     Client.GetTopic("Auction:LoadSellTabItems").Add(function(param) Auction:LoadSellTabItems(param) end)
 
-    function Auction:LoadAuctionItems(page)
-        -- 서버에서 정보 갖고오기
+    function Auction:LoadAuctionItems(itemDB_list_serialized) -- 서버에서 경매장 템들을 불러옵니다.
+        local itemDB_list = Utility.JSONParse(itemDB_list_serialized)
+        self.itemDB_list = itemDB_list
+    end
+    Client.GetTopic("Auction:LoadAuctionItems").Add(function(param) Auction:LoadAuctionItems(param) end)
+
+    function Auction:LoadBuyTabItems(page)
+
     end
 
 
@@ -210,6 +199,28 @@ function SetupComponent(root, compObj, color, anchor, pivotX, pivotY)
     root.AddChild(compObj)
 
     return compObj
+end
+
+-- 아이템 패널에 아이템 정보가 나타나게 합니다.
+function FillItemPanel(itemPanel, itemDB)
+    local item_img = SetupComponent(itemPanel, Image("", Rect(0 , 0, 40, 40)), nil, Aligns.MIDDLE_LEFT, 0, 0.5)
+    item_img.SetImageID(Client.GetItem(itemDB.id).imageID)
+
+    if itemDB.level > 0 then
+        local item_level_txt = SetupComponent(item_img, Text("<Color=#4FF53A>+" .. itemDB.level .. "</color>", Rect(0, 0, 20, 20)), nil, Aligns.TOP_LEFT, 0, 0)
+        item_level_txt.borderEnabled = true
+        item_level_txt.fontStyle = 1 -- Bold
+    end
+
+    local priceStr
+    if itemDB.moneyMode == "gold" then
+        priceStr = "<Color=Yellow>" .. itemDB.price .. " 골드" .. "</color>"
+    else
+        priceStr = "<Color=#e061f9>" .. itemDB.price .. " 루비" .. "</color>"
+    end
+
+    local txt = SetupComponent(itemPanel, Text("", Rect(0, 0, 200, 40)), nil, Aligns.MIDDLE_CENTER, 0.5, 0.5)
+    txt.text = Client.GetItem(itemDB.id).name .. " " .. itemDB.count .. "개" .. "\n" .. priceStr
 end
 
 

@@ -144,7 +144,7 @@ function S_Auction:SendAuctionItems()
         Concat(itemDB_list, aPlayer_itemDB_list)
     end
 
-    unit.FireEvent("Auction:RefreshSellTab")
+    unit.FireEvent("Auction:LoadAuctionItems", Utility.JSONSerialize(itemDB_list))
 end
 Server.GetTopic("S_Auction:SendAuctionItems").Add(function(param) S_Auction:SendAuctionItems(param) end)
 
