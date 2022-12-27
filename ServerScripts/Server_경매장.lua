@@ -14,7 +14,8 @@
 -- 번호 입력 시 다른 스크립트와 겹치지 않도록 주의해 주세요.
 
 ITEM_REGISTER_EVENT_VAR = 2 -- 경매장 아이템 등록하는 공용 이벤트의 번호를 입력해 주세요.
-ASK_REGISTER_EVENT_VAR = 3 -- 등록 확인 공용 이벤트의 번호를 입력해 주세요.
+ASK_REGISTER_EVENT_VAR = 3 -- 판매 등록 확인을 물어보는 공용 이벤트의 번호를 입력해 주세요.
+ASK_BUY_EVENT_VAR = 4 -- 구매 확인을 물어보는 공용 이벤트의 번호를 입력해 주세요.
 
 TEMP_STRING_VAR = 100 -- 임시 저장용으로 쓰입니다. 개인 스트링 변수의 번호를 입력해주세요.
 ITEM_STORAGE_STRING_VARS = {101,102,103,104,105} -- 아이템을 저장할 개인 스트링 변수의 번호를 입력해 주세요.
@@ -147,6 +148,15 @@ function S_Auction:SendAuctionItems()
     unit.FireEvent("Auction:LoadAuctionItems", Utility.JSONSerialize(itemDB_list))
 end
 Server.GetTopic("S_Auction:SendAuctionItems").Add(function(param) S_Auction:SendAuctionItems(param) end)
+
+function S_Auction:CheckBuy(itemDB_serialized) -- 정말 구매할 것인지 물어보고 진행시킵니다.
+    unit.SetStringVar(TEMP_STRING_VAR, itemDB_serialized) -- 구매할 아이템을 임시 저장합니다.
+    unit.StartGlobalEvent(ASK_REGISTER_EVENT_VAR)
+end
+Server.GetTopic("S_Auction:CheckBuy").Add(function(param) S_Auction:CheckBuy(param) end)
+
+function S_Auction:BuyItem()
+end
 
 
 
