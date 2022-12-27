@@ -1,3 +1,13 @@
+-------------------------------------------------
+OPTION_TYPES = {"직업", "직업", "아이템", "아이템"}
+STAT_NAMES = {"공격력", "방어력", "마법공격력", "마법방어력", "민첩", "행운", "체력", "마력"}
+-------------------------------------------------
+
+
+
+
+
+
 -- Starting
 function Open_Auction()
     Auction:Init()
@@ -37,9 +47,13 @@ Auction = { page = 1 }
         Auction:ClearTabPanel()
         self.buyTab_panel = SetupComponent(self.panel, Panel(Rect(10, 50, 620, 300)), Colors.NONE, Aligns.TOP_LEFT)
 
-        local itemlist_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 620, 240)), Colors.NONE, Aligns.TOP_CENTER, 0.5, 0)
+        local itemlist_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 400, 240)), Colors.NONE, Aligns.TOP_RIGHT, 1.0, 0)
         self.itemPanels = SetupSeparatingPanels(itemlist_panel, 5); -- '아이템 목록 패널' 안에 5개의 '아이템 패널'을 만든다.
         Auction:LoadBuyTabItems(1)
+
+        local info_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 200, 240)), Colors.DARK_GRAY, Aligns.TOP_LEFT, 0, 0)
+        self.info_txt = SetupComponent(info_panel, Text("", Rect(0, 0, info_panel.width, info_panel.height)), nil, Aligns.TOP_LEFT, 0, 0)
+        self.info_txt.textAlign = Aligns.TOP_LEFT
 
         local arrowLeft_btn = SetupComponent(self.buyTab_panel, Button("<", Rect(-25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
         local arrowRight_btn = SetupComponent(self.buyTab_panel, Button(">", Rect(25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
@@ -168,8 +182,25 @@ Auction = { page = 1 }
 
             FillItemPanel(currentPanel, itemDB)
 
-            local btn = SetupComponent(currentPanel, Button("구매", Rect(-5, 0, 35, 35)), Colors.GRAY, Aligns.MIDDLE_RIGHT, 1.0, 0.5)
-            btn.onClick.Add(function()
+            local info_btn = SetupComponent(currentPanel, Button("", Rect(0, 0, 300, 40)), Colors.NONE, Aligns.MIDDLE_LEFT, 0, 0.5)
+            info_btn.onClick.Add(function()
+                local client_item = Client.GetItem(itemDB.id)
+                self.info_txt.text = " " .. client_item.name .. "<color=Green> (+" .. itemDB.level .. ")</color>\n" ..
+                                    client_item.desc .. "\n\n" ..
+                                    "<color=#FF00FF>옵션</color>" .. "\n" ..
+                                    "<color=#00FFFF>"
+                for _, option in ipairs(itemDB.options) do
+                    if OPTION_TYPES[option.type] and STAT_NAMES[option.statID] then
+                        self.info_txt.text = self.info_txt.text .. OPTION_TYPES[option.type] .. " " .. STAT_NAMES[option.statID] .. " +" .. option.value .. "\n"
+                    else
+                        self.info_txt.text = self.info_txt.text .. "option error" .. "\n"
+                    end
+                end
+                self.info_txt.text = self.info_txt.text .. "</color>"
+            end)
+
+            local buy_btn = SetupComponent(currentPanel, Button("구매", Rect(-5, 0, 35, 35)), Colors.GRAY, Aligns.MIDDLE_RIGHT, 1.0, 0.5)
+            buy_btn.onClick.Add(function()
                 -- Client.FireEvent("S_Auction:WithdrawItem", itemDB.varNum)
             end)
 

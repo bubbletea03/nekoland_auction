@@ -1,6 +1,6 @@
 --------------------------------------------------------
 -- Made by 기윤e
--- 깃허브 주소: https://github.com/bubbletea03
+-- 깃허브 주소: https://github.com/bubbletea03/nekoland_auction
 -- References 한량, 사랑요
 -- 질문 받아주신 사랑요, B M, Windmill님 감사합니다.
 --------------------------------------------------------
@@ -172,7 +172,8 @@ function ConvertItemToDict(item)
         options = {}
     }
     for _, option in ipairs(item.options) do
-        table.insert(item_dict.options, option)
+        local option_dict = {type=option.type, statID=option.statID, value=option.value}
+        table.insert(item_dict.options, option_dict)
     end
 
     return item_dict
