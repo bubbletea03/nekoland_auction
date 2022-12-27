@@ -1,3 +1,8 @@
+-- Made by 기윤e
+-- 깃허브 주소: https://github.com/bubbletea03
+-- References 한량, 사랑요
+
+
 -- 번호 입력 시 다른 스크립트와 겹치지 않도록 주의해 주세요.
 
 ITEM_REGISTER_EVENT_VAR = 2 -- 경매장 아이템 등록하는 공용 이벤트의 번호를 입력해 주세요.
@@ -67,41 +72,56 @@ function S_Auction:CheckRegister(serialized_table) -- 가격, 개수 등을 체�
         return
     end
 
-    local item_dict = ConvertItemToDict(item)
-    item_dict.count = amount
-    item_dict.price = price
-    item_dict.moneyMode = moneyMode
+    local itemDB = ConvertItemToDict(item)
+    itemDB.count = amount
+    itemDB.price = price
+    itemDB.moneyMode = moneyMode
 
-    unit.SetStringVar(TEMP_STRING_VAR, Utility.JSONSerialize(item_dict)) -- 등록할 아이템을 임시 저장합니다.
+    unit.SetStringVar(TEMP_STRING_VAR, Utility.JSONSerialize(itemDB)) -- 등록할 아이템을 임시 저장합니다.
     unit.StartGlobalEvent(ASK_REGISTER_EVENT_VAR) -- 정말 등록할 것인지 물어봅니다.
 end
 Server.GetTopic("S_Auction:CheckRegister").Add(function(param) S_Auction:CheckRegister(param) end)
 
 function S_Auction:RegisterItem()
+
     local varNum = GetEmptyRegisterSpaceVarNumber()
-    unit.SetStringVar(varNum, unit.GetStringVar(TEMP_STRING_VAR)) -- 임시 저장된 아이템을 리얼로 등록합니다.
+    local itemDB = Utility.JSONParse(unit.GetStringVar(TEMP_STRING_VAR))
+    itemDB.varNum = varNum -- item의 DB에 변수 번호도 기록해둡니다.
+
+    unit.RemoveItemByID(unit.GetVar(SELECTED_ITEM_VAR), itemDB.count) -- 아이템 뺏기 
+    -- [?] ID기준으로 지우면, ID같은 것들은 어캐됨?
+    -- A: 네코랜드 아이템에는 dataID와 고유ID가 있다. (선택 아이템 변수에는 고유ID가 들어간다.)
+
+    unit.SetStringVar(varNum, Utility.JSONSerialize(itemDB)) -- 아이템 최종 등록
     unit.FireEvent("Auction:RefreshSellTab")
 end
 
 -- 등록된 아이템들의 정보를 클라이언트로 보냅니다.
 function S_Auction:SendSellTabItems()
-    
-    local items = {}
+
+    local itemDB_list = {}
 
     for i, var_number in ipairs(ITEM_STORAGE_STRING_VARS) do
         local var = unit.GetStringVar(var_number)
 
         if var ~= nil and var ~= "" then
-            local item = Utility.JSONParse(var)
-            if item.id then -- id에 접근하여 item 형식의 정보인지 체크합니다. (쓰레기값 들어가있는 경우 방지)
-                table.insert(items, item)
+            local itemDB = Utility.JSONParse(var)
+            if itemDB.id then -- id에 접근하여 item 형식의 정보인지 체크합니다. (쓰레기값 들어가있는 경우 방지)
+                table.insert(itemDB_list, itemDB)
             end
         end
     end
 
-    unit.FireEvent("Auction:LoadSellTabItems", Utility.JSONSerialize(items))
+    unit.FireEvent("Auction:LoadSellTabItems", Utility.JSONSerialize(itemDB_list))
 end
 Server.GetTopic("S_Auction:SendSellTabItems").Add(function(param) S_Auction:SendSellTabItems(param) end)
+
+-- 저장된 변수 번호를 받아 유저에게 회수 시켜줍니다.
+function S_Auction:WithdrawItem(itemVarNum)
+    local itemDB = Utility.JSONParse(unit.GetStringVar(itemVarNum))
+    local item = Server.CreateItem(itemDB.id, itemDB.count)
+
+end
 
 
 
