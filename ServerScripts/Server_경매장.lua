@@ -119,9 +119,19 @@ Server.GetTopic("S_Auction:SendSellTabItems").Add(function(param) S_Auction:Send
 -- 저장된 변수 번호를 받아 유저에게 회수 시켜줍니다.
 function S_Auction:WithdrawItem(itemVarNum)
     local itemDB = Utility.JSONParse(unit.GetStringVar(itemVarNum))
-    local item = Server.CreateItem(itemDB.id, itemDB.count)
+    unit.SetStringVar(itemVarNum, nil)
 
+    -- 아이템 객체 생성 로직
+    local item = Server.CreateItem(itemDB.id, itemDB.count)
+    item.level = itemDB.level
+    for i, option in ipairs(itemDB.options) do
+        Utility.AddItemOption(item, option.type, option.statID, option.value)
+    end
+
+    unit.AddItemByTItem(item, true)
+    unit.FireEvent("Auction:RefreshSellTab")
 end
+Server.GetTopic("S_Auction:WithdrawItem").Add(function(param) S_Auction:WithdrawItem(param) end)
 
 
 

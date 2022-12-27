@@ -134,6 +134,12 @@ Auction = { page = 1 }
             local item_img = SetupComponent(currentPanel, Image("", Rect(0 , 0, 40, 40)), nil, Aligns.MIDDLE_LEFT, 0, 0.5)
             item_img.SetImageID(Client.GetItem(itemDB.id).imageID)
 
+            if itemDB.level > 0 then
+                local item_level_txt = SetupComponent(item_img, Text("<Color=#4FF53A>+" .. itemDB.level .. "</color>", Rect(0, 0, 20, 20)), nil, Aligns.TOP_LEFT, 0, 0)
+                item_level_txt.borderEnabled = true
+                item_level_txt.fontStyle = 1 -- Bold
+            end
+
             local priceStr
             if itemDB.moneyMode == "gold" then
                 priceStr = "<Color=Yellow>" .. itemDB.price .. " 골드" .. "</color>"
@@ -146,7 +152,7 @@ Auction = { page = 1 }
 
             local btn = SetupComponent(currentPanel, Button("회수", Rect(-5, 0, 35, 35)), Colors.GRAY, Aligns.MIDDLE_RIGHT, 1.0, 0.5)
             btn.onClick.Add(function()
-                -- 회수func(item.varNum)
+                Client.FireEvent("S_Auction:WithdrawItem", itemDB.varNum)
             end)
 
             currentPanelIndex = currentPanelIndex + 1
