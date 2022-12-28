@@ -15,8 +15,10 @@ end
 
 
 -- Auction UI
-Auction = { page = 1 }
+Auction = {}
     function Auction:Init()
+
+        self.page = 1
 
         self.screen = Panel(Rect(0,0,Client.width,Client.height)) -- 최상위 UI 요소입니다.
         self.screen.showOnTop = true
@@ -39,17 +41,16 @@ Auction = { page = 1 }
         btn_exit.onClick.Add(function()
             self.screen.Destroy()
         end)
-
-        Client.FireEvent("S_Auction:SendAuctionItems")
     end
 
     function Auction:Goto_BuyTab()
         Auction:ClearTabPanel()
+        Client.FireEvent("S_Auction:SendAuctionItems")
         self.buyTab_panel = SetupComponent(self.panel, Panel(Rect(10, 50, 620, 300)), Colors.NONE, Aligns.TOP_LEFT)
 
         local itemlist_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 400, 240)), Colors.NONE, Aligns.TOP_RIGHT, 1.0, 0)
         self.itemPanels = SetupSeparatingPanels(itemlist_panel, 5); -- '아이템 목록 패널' 안에 5개의 '아이템 패널'을 만든다.
-        Auction:LoadBuyTabItems(1)
+        Auction:LoadBuyTabItems(self.page)
 
         local info_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 200, 240)), Colors.DARK_GRAY, Aligns.TOP_LEFT, 0, 0)
         self.info_txt = SetupComponent(info_panel, Text("", Rect(0, 0, info_panel.width, info_panel.height)), nil, Aligns.TOP_LEFT, 0, 0)
@@ -57,6 +58,17 @@ Auction = { page = 1 }
 
         local arrowLeft_btn = SetupComponent(self.buyTab_panel, Button("<", Rect(-25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
         local arrowRight_btn = SetupComponent(self.buyTab_panel, Button(">", Rect(25, -15, 40, 40)), Colors.LIGHT_GRAY, Aligns.BOTTOM_CENTER, 0.5, 0.5)
+
+        arrowLeft_btn.onClick.Add(function()
+            if self.page > 1 then
+                self.page = self.page - 1
+                Auction:RefreshBuyTab()
+            end
+        end)
+        arrowRight_btn.onClick.Add(function()
+            self.page = self.page + 1
+            Auction:RefreshBuyTab()
+        end)
 
         local pageText = SetupComponent(self.buyTab_panel, Text(self.page .. "/" .. "2", Rect(80, -15, 40, 40)), nil, Aligns.BOTTOM_CENTER, 0.5, 0.5)
 
@@ -211,10 +223,10 @@ Auction = { page = 1 }
         end
     end
 
-    function Auction:Close()
-        self.screen.Destroy()
+    function Auction:RefreshBuyTab()
+        Auction:Goto_BuyTab()
     end
-    Client.GetTopic("Auction:Close").Add(function(param) Auction:Close(param) end)
+    Client.GetTopic("Auction:RefreshBuyTab").Add(function() Auction:RefreshBuyTab() end)
 
 
 

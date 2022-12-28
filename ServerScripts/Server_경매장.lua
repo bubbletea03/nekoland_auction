@@ -186,7 +186,7 @@ function S_Auction:BuyItem()
     local item = GetItemByDB(itemDB)
     unit.AddItemByTItem(item, true)
 
-    unit.FireEvent("Auction:Close")
+    unit.FireEvent("Auction:RefreshBuyTab")
 end
 
 
