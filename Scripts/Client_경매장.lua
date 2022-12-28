@@ -200,11 +200,12 @@ Auction = { page = 1 }
             end)
 
             -- [!!!!!!!!!!!] 이름 같을 경우 구매 버튼 안뜨게 하기~~
-
-            local buy_btn = SetupComponent(currentPanel, Button("구매", Rect(-5, 0, 35, 35)), Colors.GRAY, Aligns.MIDDLE_RIGHT, 1.0, 0.5)
-            buy_btn.onClick.Add(function()
-                Client.FireEvent("S_Auction:CheckBuy", Utility.JSONSerialize(itemDB))
-            end)
+            if Client.myPlayerUnit.name ~= itemDB.playerName then
+                local buy_btn = SetupComponent(currentPanel, Button("구매", Rect(-5, 0, 35, 35)), Colors.GRAY, Aligns.MIDDLE_RIGHT, 1.0, 0.5)
+                buy_btn.onClick.Add(function()
+                    Client.FireEvent("S_Auction:CheckBuy", Utility.JSONSerialize(itemDB))
+                end)
+            end
 
             currentPanelIndex = currentPanelIndex + 1
         end
