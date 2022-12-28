@@ -65,11 +65,13 @@ Auction = {}
             end
         end)
         arrowRight_btn.onClick.Add(function()
-            self.page = self.page + 1
-            Auction:RefreshBuyTab()
+            if self.page < self.maxPage then
+                self.page = self.page + 1
+                Auction:RefreshBuyTab()
+            end
         end)
 
-        local pageText = SetupComponent(self.buyTab_panel, Text(self.page .. "/" .. "2", Rect(80, -15, 40, 40)), nil, Aligns.BOTTOM_CENTER, 0.5, 0.5)
+        local pageText = SetupComponent(self.buyTab_panel, Text(self.page .. "페이지", Rect(80, -15, 40, 40)), nil, Aligns.BOTTOM_CENTER, 0.5, 0.5)
 
     end
 
@@ -177,6 +179,8 @@ Auction = {}
         if not itemDB_list then
             return
         end
+
+        self.maxPage = math.ceil(#itemDB_list / 5)
     
         local currentPanelIndex = 1
     
