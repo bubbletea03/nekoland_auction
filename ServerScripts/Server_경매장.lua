@@ -133,16 +133,16 @@ end
 Server.GetTopic("S_Auction:WithdrawItem").Add(function(param) S_Auction:WithdrawItem(param) end)
 
 -- 경매장 내 등록된 모든 아이템을 탐색하여 클라이언트로 보냅니다.
-function S_Auction:SendAuctionItems()
+function S_Auction:SendBuyTabItems()
     local itemDB_list = {}
     for _, player in ipairs(Server.players) do
         local aPlayer_itemDB_list = GetItemDBListOfPlayer(player)
         Concat(itemDB_list, aPlayer_itemDB_list)
     end
 
-    unit.FireEvent("Auction:LoadAuctionItems", Utility.JSONSerialize(itemDB_list))
+    unit.FireEvent("Auction:LoadBuyTabItems", Utility.JSONSerialize(itemDB_list))
 end
-Server.GetTopic("S_Auction:SendAuctionItems").Add(function(param) S_Auction:SendAuctionItems(param) end)
+Server.GetTopic("S_Auction:SendBuyTabItems").Add(function(param) S_Auction:SendBuyTabItems(param) end)
 
 function S_Auction:CheckBuy(itemDB_serialized) -- 정말 구매할 것인지 물어보고 진행시킵니다.
     local itemDB = Utility.JSONParse(itemDB_serialized)
@@ -150,7 +150,9 @@ function S_Auction:CheckBuy(itemDB_serialized) -- 정말 구매할 것인지 물
     if itemDB.moneyMode == "gold" and itemDB.price > unit.gameMoney then
         unit.SendCenterLabel("금액이 부족합니다.")
         return
-    elseif itemDB.price > unit.CountItem(RUBY_ITEM_VAR) then
+    end
+    
+    if itemDB.moneyMode == "ruby" and itemDB.price > unit.CountItem(RUBY_ITEM_VAR) then
         unit.SendCenterLabel("금액이 부족합니다.")
         return
     end

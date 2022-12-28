@@ -45,12 +45,11 @@ Auction = {}
 
     function Auction:Goto_BuyTab()
         Auction:ClearTabPanel()
-        Client.FireEvent("S_Auction:SendAuctionItems")
         self.buyTab_panel = SetupComponent(self.panel, Panel(Rect(10, 50, 620, 300)), Colors.NONE, Aligns.TOP_LEFT)
-
+        
         local itemlist_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 400, 240)), Colors.NONE, Aligns.TOP_RIGHT, 1.0, 0)
         self.itemPanels = SetupSeparatingPanels(itemlist_panel, 5); -- '아이템 목록 패널' 안에 5개의 '아이템 패널'을 만든다.
-        Auction:LoadBuyTabItems(self.page)
+        Client.FireEvent("S_Auction:SendBuyTabItems")
 
         local info_panel = SetupComponent(self.buyTab_panel, Panel(Rect(0, 20, 200, 240)), Colors.DARK_GRAY, Aligns.TOP_LEFT, 0, 0)
         self.info_txt = SetupComponent(info_panel, Text("", Rect(0, 0, info_panel.width, info_panel.height)), nil, Aligns.TOP_LEFT, 0, 0)
@@ -172,28 +171,22 @@ Auction = {}
     end
     Client.GetTopic("Auction:LoadSellTabItems").Add(function(param) Auction:LoadSellTabItems(param) end)
 
-    function Auction:LoadAuctionItems(itemDB_list_serialized) -- 서버에서 경매장 템들을 불러옵니다.
+    function Auction:LoadBuyTabItems(itemDB_list_serialized) -- 서버에서 경매장 템들을 불러옵니다.
         local itemDB_list = Utility.JSONParse(itemDB_list_serialized)
-        self.itemDB_list = itemDB_list
-    end
-    Client.GetTopic("Auction:LoadAuctionItems").Add(function(param) Auction:LoadAuctionItems(param) end)
 
-    -- 페이지 번호를 받아 구매탭에 템들을 띄웁니다.
-    function Auction:LoadBuyTabItems(page)
-
-        if not self.itemDB_list then
+        if not itemDB_list then
             return
         end
-
+    
         local currentPanelIndex = 1
-
-        local aPage_itemDB_list = Slice(self.itemDB_list, page*5-4, page*5)
-
+    
+        local aPage_itemDB_list = Slice(itemDB_list, self.page*5-4, self.page*5)
+    
         for _, itemDB in ipairs(aPage_itemDB_list) do
             local currentPanel = self.itemPanels[currentPanelIndex]
-
+    
             FillItemPanel(currentPanel, itemDB)
-
+    
             local info_btn = SetupComponent(currentPanel, Button("", Rect(0, 0, 300, 40)), Colors.NONE, Aligns.MIDDLE_LEFT, 0, 0.5)
             info_btn.onClick.Add(function()
                 local client_item = Client.GetItem(itemDB.id)
@@ -210,7 +203,7 @@ Auction = {}
                 end
                 self.info_txt.text = self.info_txt.text .. "</color>"
             end)
-
+    
             -- [!!!!!!!!!!!] 이름 같을 경우 구매 버튼 안뜨게 하기~~
             if Client.myPlayerUnit.name ~= itemDB.playerName then
                 local buy_btn = SetupComponent(currentPanel, Button("구매", Rect(-5, 0, 35, 35)), Colors.GRAY, Aligns.MIDDLE_RIGHT, 1.0, 0.5)
@@ -218,10 +211,11 @@ Auction = {}
                     Client.FireEvent("S_Auction:CheckBuy", Utility.JSONSerialize(itemDB))
                 end)
             end
-
+    
             currentPanelIndex = currentPanelIndex + 1
         end
     end
+    Client.GetTopic("Auction:LoadBuyTabItems").Add(function(param) Auction:LoadBuyTabItems(param) end)
 
     function Auction:RefreshBuyTab()
         Auction:Goto_BuyTab()
